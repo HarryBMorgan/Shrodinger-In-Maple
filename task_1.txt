@@ -1,0 +1,69 @@
+Part 1a.
+First I will define the schrodinger equatio and assign it a variable.
+restart;
+tise := (-1/2)*diff(psi(x),x$2) + (1/2)*(x**2)*psi(x) = E*psi(x);
+I am looking for solutions of psi(x)-->0 as x-->infinity. Therefore, the wavefunctions that work will be either symmetric or antisymmetric...psi(x)=psi(-x) or psi(x)=-psi(-x).
+For a symmetric solution, psi(0)=constant and D(psi)(0)=0.
+For an antisymmetric solution, psi(0)=0 and D(psi)(0)=constant.
+These will be our initial conditions for the problem.
+
+I will find the 5 lowest values for E for the symmetric and antisymmetric solutions then choose the 5 lowest E from that set.
+
+Symmetric conditions first.
+init_sym := psi(0)=1, D(psi)(0)=0;
+Now I will loop from 0 to 1 to find solutions to the equation. (I have run this before and to save time have narrowed the itteration limit to produce only the lowest values neeeded.)
+for i from 0 by 0.1 to 4.5 do:
+sol_sym := dsolve({subs(E=i,tise),init_sym},psi(x)):
+The IF statement checks if psi(x)-->0 as x-->infinity. If it does it assigns the wavefunction as a solution along with the value of E.
+if limit(rhs(sol_sym),x=infinity)=0 then sol[i]:=sol_sym,E=i: print(sol[i]) fi:
+od:
+
+Now lets look at the antisymmetric solutions.
+init_asym := psi(0)=0, D(psi)(0)=1;
+Now to loop in the same way as for the symmetric solutions. (I have run this before and to save time have narrowed the itteration limit to produce only the lowest values neeeded.)
+for i from 0 by 0.1 to 3.5 do:
+sol_asym := dsolve({subs(E=i,tise),init_asym},psi(x)):
+The IF statement checks if psi(x)-->0 as x-->infinity. If it does it assigns the wavefunction as a solution along with the value of E.
+if limit(rhs(sol_asym),x=infinity)=0 then sol[i]:=sol_asym,E=i: print(sol[i]) fi:
+od:
+
+I will now give the eigenfunctions a new name to be used in the next loop and seperate the eigenfunctoins from the eigenvalues into associated variables.
+efunc[0] := rhs(sol[0.5][1]);
+E[0] := rhs(sol[0.5][2]);
+efunc[1] := rhs(sol[1.5][1]);
+E[1] := rhs(sol[1.5][2]);
+efunc[2] := rhs(sol[2.5][1]);
+E[2] := rhs(sol[2.5][2]);
+efunc[3] := rhs(sol[3.5][1]);
+E[3] := rhs(sol[3.5][2]);
+efunc[4] := rhs(sol[4.5][1]);
+E[4] := rhs(sol[4.5][2]);
+
+Now I will normalise the functions. This is done by integrating the solution multiplied by its conjugate over the interval x=-infinity..infinty. I then take the inverse square root of this and multiply by the un-normalised eigenfunction. The normalised eigenfunctions and eigenvalues are reprinted for good measure.
+for i from 0 to 4 do:
+efunc_norm[i] := 1/sqrt(int(efunc[i]*conjugate(efunc[i]),x=-infinity..infinity))*efunc[i]:
+E[i] := E[i]:
+od;
+Part 1b.
+Here I will plot the eigenfunctions offset such that their associated eigenvalues are their x-axis.
+First I will define the plotting dfunctions to make the plot command neater.
+I will also write some variables to make the plot command less messy.
+for i from 0 to 4 do:
+pfunc[i] := efunc_norm[i] + E[i]:
+od:
+Title
+t := "The First 5 Solutions to the TISE":
+Plot
+p := [pfunc[0],E[0],pfunc[1],E[1],pfunc[2],E[2],pfunc[3],E[3],pfunc[4],E[4]]:
+Colour
+c := [burgundy,black,azure,black,gold,black,navy,black,purple,black]:
+Legend
+leg := [psi(x)[0],"",psi(x)[1],"",psi(x)[2],"",psi(x)[3],"",psi(x)[4],""]:
+Legend Style
+legs := [location=right]:
+Labels
+l := ["x",psi(x)]:
+Caption
+cap := "The lowest 5 states of the Time Independent Schrodinger Equation are shown. Each eigenfunction rests on its own x-axis located at the position of its associated eigenvalue.":
+plot(p,x=-5..5,y=0..5.2,title=t,color=c,legend=leg,legendstyle=legs,labels=l,caption=cap);
+
